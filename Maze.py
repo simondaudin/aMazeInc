@@ -7,24 +7,17 @@ class Maze:
         self.v_walls = v_walls
 
     def __repr__(self):
-        s = ' ' + '_' * (2 * self.width - 1) + ' ' + '\n'
+        s = '+' + (Maze.wall_char(True, True)+'+') * self.width + '\n'
         for i in range(self.height - 1):
-            s += '|'
-            for j in range(self.width - 1):
-                s += Maze.wall_char(True, self.h_walls[i][j])
-                s += Maze.wall_char(False, self.v_walls[j][i])
-            s += Maze.wall_char(True, self.h_walls[i][-1])
-            s += '|\n'
-        s += '|'
-        for j in range(self.width - 1):
-            s += '_'
-            s += Maze.wall_char(False, self.v_walls[j][-1])
-        s += '_|'
+            s += '|' + ''.join(['  '+Maze.wall_char(False, self.v_walls[j][i]) for j in range(self.width-1)]) + '  |\n'
+            s += '+' + ''.join([Maze.wall_char(True, self.h_walls[i][j])+'+' for j in range(self.width)]) + '\n'
+        s += '|' + ''.join(['  '+Maze.wall_char(False, self.v_walls[j][-1]) for j in range(self.width-1)]) + '  |\n'
+        s += '+' + (Maze.wall_char(True, True)+'+') * self.width
         return s
 
     @staticmethod
     def wall_char(horizontal, full):
         if full:
-            return '_' if horizontal else '|'
+            return '--' if horizontal else '|'
         else:
-            return ' '
+            return '  ' if horizontal else ' '
