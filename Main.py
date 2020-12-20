@@ -1,16 +1,9 @@
 import random
 import curses
 import time
-from enum import Enum
 
+from Direction import Direction
 from Maze import Maze
-
-
-class Direction(Enum):
-    UP = (-1, 0)
-    DOWN = (1, 0)
-    LEFT = (0, -1)
-    RIGHT = (0, 1)
 
 
 def possible_cases(height, width, seen, i, j):
@@ -36,13 +29,13 @@ def random_maze(height, width):
     v_walls = [[True] * height for _ in range(width - 1)]
     seen = set()
     backtrace = []
-    maze = Maze(height, width, h_walls, v_walls)
+    # maze = Maze(height, width, h_walls, v_walls)
     while True:
-        time.sleep(0.25)
-        maze.set_pos(i, j)
-        for line_number, line in enumerate(str(maze).split('\n')):
-            stdscr.addstr(line_number, 0, line)
-        stdscr.refresh()
+        # time.sleep(0.25)
+        # maze.set_pos(i, j)
+        # for line_number, line in enumerate(str(maze).split('\n')):
+        #     stdscr.addstr(line_number, 0, line)
+        # stdscr.refresh()
         seen.add((i, j))
         cases = possible_cases(height, width, seen, i, j)
         if not cases:
@@ -65,14 +58,53 @@ def random_maze(height, width):
         i, j = resolve_pos(i, j, choice)
 
 
+def solve_maze(maze):
+    seen = set()
+    backtrace = []
+    solution = []
+    i, j = 0, 0
+    while i != maze.height - 1 or j != maze.width - 1:
+        maze.set_pos(i, j)
+        for line_number, line in enumerate(maze.representation({s: 'O' for s in seen}).split('\n')):
+            stdscr.addstr(line_number, 0, line)
+        stdscr.refresh()
+        time.sleep(0.01)
+        seen.add((i, j))
+        solution.append((i, j))
+        directions = list(filter(lambda x: resolve_pos(i, j, x) not in seen, maze.available_directions(i, j)))
+        if not directions:
+            if not backtrace:
+                return []
+            i, j = backtrace.pop()
+            solution = solution[:solution.index((i, j))]
+            continue
+        if len(directions) > 1:
+            backtrace.append((i, j))
+            choice = random.choice(directions)
+        else:
+            choice = directions[0]
+        (i, j) = resolve_pos(i, j, choice)
+    solution.append((maze.height - 1, maze.width - 1))
+    maze.set_pos(maze.height - 1, maze.width - 1)
+    for line_number, line in enumerate(str(maze).split('\n')):
+        stdscr.addstr(line_number, 0, line)
+    stdscr.refresh()
+    time.sleep(1)
+    return solution
+
+
 stdscr = curses.initscr()
 curses.noecho()
 curses.cbreak()
 try:
-    maze = random_maze(5, 30)
+    maze = random_maze(20, 65)
+    solutions = solve_maze(maze)
     maze.unset_pos()
 finally:
     curses.echo()
     curses.nocbreak()
     curses.endwin()
-print(maze)
+if not solutions:
+    print('IMPOSSIBLE')
+else:
+    print(maze.representation({s:'*' for s in solutions}))
