@@ -5,8 +5,10 @@ class Maze:
         self.width = width
         self.h_walls = h_walls
         self.v_walls = v_walls
+        self.x_pos = 0
+        self.y_pos = 0
 
-    def representation(self):
+    def __repr__(self):
         res = [list('+' + (Maze.wall_char(True, True) + '+') * self.width)]
         for i in range(self.height - 1):
             res.append(list('|' + ''.join(
@@ -15,16 +17,16 @@ class Maze:
         res.append(list(
             '|' + ''.join(['  ' + Maze.wall_char(False, self.v_walls[j][-1]) for j in range(self.width - 1)]) + '  |'))
         res.append(list('+' + (Maze.wall_char(True, True) + '+') * self.width))
-        return res
+        if 0 <= self.x_pos < self.height and 0 <= self.y_pos < self.width:
+            res[2 * self.x_pos + 1][3 * self.y_pos + 1] = 'X'
+        return '\n'.join([''.join(line) for line in res])
 
-    def print_with_post(self, pos_x, pos_y):
-        r = self.representation()
-        if 0 < pos_x < self.height and 0 < pos_y < self.width:
-            r[2 * pos_x + 1][3 * pos_y + 1] = 'X'
-        return '\n'.join([''.join(line) for line in r])
+    def set_pos(self, x, y):
+        self.x_pos = x
+        self.y_pos = y
 
-    def __repr__(self):
-        return self.print_with_post(-1, -1)
+    def unset_pos(self):
+        self.set_pos(-1, -1)
 
     @staticmethod
     def wall_char(horizontal, full):
