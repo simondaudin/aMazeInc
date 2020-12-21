@@ -26,10 +26,10 @@ class Maze:
         res.append(list(
             '|' + ''.join(['  ' + Maze.wall_char(False, self.v_walls[j][-1]) for j in range(self.width - 1)]) + '  |'))
         res.append(list('+' + (Maze.wall_char(True, True) + '+') * self.width))
-        if 0 <= self.x_pos < self.height and 0 <= self.y_pos < self.width:
-            res[2 * self.x_pos + 1][3 * self.y_pos + 1] = 'X'
         for s, c in seen.items():
             res[2 * s[0] + 1][3 * s[1] + 1] = c
+        if 0 <= self.x_pos < self.height and 0 <= self.y_pos < self.width:
+            res[2 * self.x_pos + 1][3 * self.y_pos + 1] = 'X'
         return res
 
     def set_pos(self, x, y):
